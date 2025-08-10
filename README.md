@@ -379,7 +379,7 @@ POST /api/transactions
 ## 👤 Author
 
 Made with 💻 + ☕ by **Nipun Bansal**  
-GitHub: github.com/Nipun-11
+GitHub: [@NipunBansal]https://github.com/Nipun-11
 > "Budgeting isn’t about limiting yourself — it’s about creating freedom."
 
 ---
