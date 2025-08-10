@@ -103,5 +103,11 @@ POST /api/transactions
 - [ ] Authentication (JWT or session-based)
 - [ ] Deploy full-stack project
 
+## 👤 Author
+
+Made with 💻 + ☕ by **Nipun Bansal**  
+GitHub: github.com/Nipun-11
+> "Budgeting isn’t about limiting yourself — it’s about creating freedom."
+
 ---
 
