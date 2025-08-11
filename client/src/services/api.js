@@ -9,3 +9,4 @@ export const createTransaction = (data) => API.post('/transactions', data);
 
 export const getBudgets = () => API.get('/budgets');
 export const createBudget = (data) => API.post('/budgets', data);
+export const getAISummary = () => API.get('/summary');

@@ -1,109 +1,79 @@
-#personal-budget-tracker
+# 💸 Personal Budget Tracker (MERN Stack)
 
-# 💰 Personal Budget Tracker (MERN)
-
-> "Track every rupee, plan every goal."
-
-Welcome to **Personal Budget Tracker** — a smart, full-stack app designed to help you manage your finances efficiently using the powerful **MERN** stack.
+A full-stack web application to track your income, expenses, and budgets — built using the MERN stack (MongoDB, Express.js, React.js, Node.js). Designed to help users manage finances visually and intelligently.
 
 ---
 
-## 🌐 Live Preview (Coming Soon)
-Frontend on Vercel | Backend on Render | MongoDB on Atlas
+## 🚀 Features
+
+### ✅ Week 1: Project Setup
+- MERN stack project initialized (Vite + React + Node/Express + MongoDB Atlas)
+- Project structure created for client & server
+- Version control via GitHub setup
+- `.env` and server configuration done
+
+### ✅ Week 2: Core Functionalities
+- Backend APIs for **transactions** and **budgets**
+- Mongoose schemas and DB connectivity working
+- Add/view **transactions** (income & expenses)
+- Add/view **budgets** (monthly category limit)
+- Basic form UI connected to backend
+- GitHub repository created & maintained
+
+### ✅ Week 3: Data Visualization & Insights
+- 📊 Dashboard Page:
+  - **Pie Chart** for category-wise spending
+  - **Bar Chart** for income vs expense
+  - **Line Chart** for spending trend over time
+- 💰 Summary Cards:
+  - Total income, total expenses, savings
+- 📅 Filters:
+  - Filter transactions by **type**, **month**, **category**
+- 🔍 Added **Search** functionality
+- ↕️ Added **Sort** (by amount and date)
+
+---
+
+## 🧠 Upcoming: Week 4 - AI & Final Touches
+- 🤖 **AI Summary Feature**
+  - Summarizes income/expense behavior
+  - Suggests savings, overspending alerts
+- 🎨 UI/UX Enhancements
+- 📥 Export to CSV/PDF (optional)
+- 📱 Mobile responsive layout
+- 🧪 Final testing and bug fixes
 
 ---
 
 ## 🧰 Tech Stack
 
-| Layer      | Tech                     |
-|------------|--------------------------|
-| Frontend   | React, Axios, Tailwind CSS |
-| Backend    | Node.js, Express.js      |
-| Database   | MongoDB Atlas            |
-| Dev Tools  | Postman, Git, VS Code    |
+| Frontend         | Backend        | Database      |
+|------------------|----------------|---------------|
+| React.js (Vite)  | Node.js        | MongoDB Atlas |
+| React Router     | Express.js     | Mongoose      |
+| Axios            | CORS, Dotenv   |               |
+| Chart.js         |                |               |
 
 ---
 
-## 🔥 Features
-
-✅ Add, edit, and delete income/expense transactions  
-✅ View and filter transactions by date, category, or type  
-✅ Set monthly budgets per category  
-✅ Securely store data in MongoDB Atlas  
-✅ Fully responsive and clean UI (in progress)  
-✅ RESTful API architecture  
-
----
-
-## 📁 Project Structure
-
-```
+## 📁 Folder Structure
 personal-budget-tracker/
-├── client/                 # React frontend (coming soon)
-├── server/                 # Express backend
-│   ├── model/              # Mongoose schemas (Budget, Transaction)
-│   ├── routes/             # API route handlers
-│   ├── .env                # MongoDB URI and secrets
-│   └── server.js           # Entry point for backend server
-```
+├── client/ # Frontend
+│ ├── src/
+│ │ ├── pages/ # Home, Transactions, Budgets, Dashboard
+│ │ ├── components/ # TransactionForm, BudgetForm
+│ │ ├── services/ # Axios-based API handlers
+│ │ └── App.jsx, main.jsx
+│ └── vite.config.js
+├── server/ # Backend
+│ ├── models/ # Mongoose schemas (Transaction, Budget)
+│ ├── routes/ # Express routes (transactions.js, budgets.js)
+│ └── server.js
+├── .env # MongoDB URI, PORT
+├── README.md
 
----
 
-## ⚙️ Getting Started
 
-### 1. Clone the Repo
-```bash
-git clone https://github.com/your-username/personal-budget-tracker.git
-cd personal-budget-tracker
-```
-
-### 2. Setup Backend
-```bash
-cd server
-npm install
-```
-
-### 3. Create `.env`
-```env
-MONGO_URI=your-mongodb-atlas-uri
-```
-
-### 4. Run the Server
-```bash
-npm run dev
-```
-Server will be live at: `http://localhost:5000`
-
-### 5. Test API Endpoints in Postman
-- `GET    /api/transactions`
-- `POST   /api/transactions`
-- `GET    /api/budgets`
-- `POST   /api/budgets`
-
----
-
-## 🧪 Sample API Request
-
-```json
-POST /api/transactions
-{
-  "amount": 1000,
-  "type": "income",
-  "category": "Salary",
-  "date": "2025-08-10"
-}
-```
-
----
-
-## 📌 Roadmap
-
-- [x] Backend server setup
-- [x] MongoDB Atlas connection
-- [x] Transactions & Budget APIs
-- [ ] React frontend with form validations
-- [ ] Authentication (JWT or session-based)
-- [ ] Deploy full-stack project
 
 ## 👤 Author
 

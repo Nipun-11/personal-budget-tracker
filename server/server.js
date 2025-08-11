@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const aiSummaryRoutes = require('./routes/aiSummary');
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 // API routes
 app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/budgets', require('./routes/budgets'));
-
+app.use('/api/ai-summary', require('./routes/aiSummary'));
 
 // Dummy Routes
 app.get('/', (req, res) => {
