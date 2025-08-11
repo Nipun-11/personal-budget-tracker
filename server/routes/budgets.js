@@ -2,24 +2,31 @@ const express = require('express');
 const router = express.Router();
 const Budget = require('../models/Budget');
 
-// @route   GET /api/budgets
+// 👉 GET all budgets
 router.get('/', async (req, res) => {
   try {
     const budgets = await Budget.find();
     res.json(budgets);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error while fetching budgets' });
   }
 });
 
-// @route   POST /api/budgets
+// 👉 POST a new budget
 router.post('/', async (req, res) => {
   try {
-    const newBudget = new Budget(req.body);
-    const saved = await newBudget.save();
-    res.json(saved);
+    const { category, limit, month } = req.body;
+
+    const newBudget = new Budget({
+      category,
+      limit,
+      month
+    });
+
+    await newBudget.save();
+    res.status(201).json(newBudget);
   } catch (err) {
-    res.status(400).json({ error: 'Invalid budget data' });
+    res.status(400).json({ error: 'Failed to create budget' });
   }
 });
 

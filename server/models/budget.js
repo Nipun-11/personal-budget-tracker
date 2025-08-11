@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const BudgetSchema = new mongoose.Schema({
+const budgetSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true
@@ -8,7 +8,11 @@ const BudgetSchema = new mongoose.Schema({
   limit: {
     type: Number,
     required: true
+  },
+  month: {
+    type: String, // e.g., "August 2025"
+    required: true
   }
 });
 
-module.exports = mongoose.model('Budget', BudgetSchema);
+module.exports = mongoose.model('Budget', budgetSchema);
