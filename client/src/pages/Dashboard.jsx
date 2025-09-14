@@ -1,22 +1,25 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Doughnut, Line, Bar } from 'react-chartjs-2';
-import AISummary from '../components/AISummary';
-import AIChatbot from '../components/AIChatbot';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-} from 'chart.js';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import Chart from 'chart.js/auto';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import AISummary from '../components/AISummary.jsx';
+import AIChatbot from '../components/AIChatbot.jsx';
+import "../styles/Dashboard.css";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement);
+// Register Chart.js components
+Chart.register();
 
 export default function Dashboard() {
+  // Chart refs for canvas elements
+  const categoryChartRef = useRef(null);
+  const trendChartRef = useRef(null);
+  const budgetChartRef = useRef(null);
+  
+  // Authentication context
+  const { user, logout } = useAuth();
+  
+  // Store chart instances for cleanup
+  const chartInstances = useRef({});
+
   // Consolidated state management
   const [data, setData] = useState({
     analytics: null,
@@ -41,7 +44,259 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState('overview'); // overview, detailed, analytics
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch all data efficiently
+  // Destroy existing chart
+  const destroyChart = (chartKey) => {
+    if (chartInstances.current[chartKey]) {
+      chartInstances.current[chartKey].destroy();
+      delete chartInstances.current[chartKey];
+    }
+  };
+
+  // Create Category Doughnut Chart with pure Chart.js
+  const createCategoryChart = (chartData) => {
+    const ctx = categoryChartRef.current;
+    if (!ctx || !chartData.labels || chartData.labels.length === 0) return;
+
+    destroyChart('category');
+
+    chartInstances.current.category = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: chartData.labels,
+        datasets: [{
+          data: chartData.datasets[0].data,
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+          ],
+          borderColor: '#ffffff',
+          borderWidth: 3,
+          hoverBorderWidth: 5,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+              font: { size: 14 }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            callbacks: {
+              label: (context) => {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return `${context.label}: ₹${context.parsed.toLocaleString()} (${percentage}%)`;
+              }
+            }
+          }
+        },
+        animation: {
+          animateRotate: true,
+          duration: 1200,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  };
+
+  // Create Trend Line Chart with pure Chart.js
+  const createTrendChart = (chartData) => {
+    const ctx = trendChartRef.current;
+    if (!ctx || !chartData.labels || chartData.labels.length === 0) return;
+
+    destroyChart('trend');
+
+    chartInstances.current.trend = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.labels,
+        datasets: [
+          {
+            label: 'Income',
+            data: chartData.datasets[0].data,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#28a745',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+          },
+          {
+            label: 'Expenses',
+            data: chartData.datasets[1].data,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#dc3545',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              font: { size: 14 }
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => `₹${(value/1000).toFixed(0)}k`,
+              font: { size: 12 }
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            ticks: {
+              font: { size: 12 }
+            },
+            grid: {
+              display: false
+            }
+          }
+        },
+        animation: {
+          duration: 1200,
+          easing: 'easeOutQuart'
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        }
+      }
+    });
+  };
+
+  // Create Budget Bar Chart with pure Chart.js
+  const createBudgetChart = (budgets) => {
+    const ctx = budgetChartRef.current;
+    if (!ctx || !budgets || budgets.length === 0) return;
+
+    destroyChart('budget');
+
+    const categories = budgets.map(b => b.category);
+    const budgetAmounts = budgets.map(b => b.limit);
+    const spentAmounts = budgets.map(b => b.actualSpent || 0);
+
+    chartInstances.current.budget = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: categories,
+        datasets: [
+          {
+            label: 'Budget',
+            data: budgetAmounts,
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+          },
+          {
+            label: 'Spent',
+            data: spentAmounts,
+            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              padding: 20
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { 
+              callback: (value) => `₹${value.toLocaleString()}`,
+              color: '#6b7280'
+            },
+            grid: { 
+              color: 'rgba(156, 163, 175, 0.2)',
+              drawBorder: false 
+            },
+            border: { display: false }
+          },
+          x: {
+            ticks: { color: '#6b7280' },
+            grid: { display: false },
+            border: { display: false }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutElastic'
+        }
+      }
+    });
+  };
+
+  // Fetch all data efficiently with authentication
   const fetchDashboardData = async () => {
     const isRefresh = !data.loading;
     if (isRefresh) {
@@ -52,19 +307,34 @@ export default function Dashboard() {
     
     try {
       const baseUrl = 'http://localhost:5000/api';
+      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         startDate: filters.dateRange.start,
         endDate: filters.dateRange.end,
         limit: '10'
       });
       
+      // Headers with authentication
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+      
       // Parallel API calls for better performance
       const [analyticsRes, transactionsRes, groupsRes, budgetsRes] = await Promise.all([
-        fetch(`${baseUrl}/transactions/analytics?${params}`),
-        fetch(`${baseUrl}/transactions?${params}`),
-        fetch(`${baseUrl}/groups`),
-        fetch(`${baseUrl}/budgets`)
+        fetch(`${baseUrl}/transactions/analytics?${params}`, { headers }),
+        fetch(`${baseUrl}/transactions?${params}`, { headers }),
+        fetch(`${baseUrl}/groups`, { headers }),
+        fetch(`${baseUrl}/budgets`, { headers })
       ]);
+
+      // Check for authentication errors
+      if (analyticsRes.status === 401 || transactionsRes.status === 401 || 
+          groupsRes.status === 401 || budgetsRes.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        return;
+      }
 
       // Process responses
       const [analytics, transactionsData, groups, budgets] = await Promise.all([
@@ -94,6 +364,38 @@ export default function Dashboard() {
     }
   };
 
+  // Update charts when data changes
+  useEffect(() => {
+    if (data.loading || data.error) return;
+
+    // Small delay to ensure canvas elements are ready
+    setTimeout(() => {
+      const chartData = generateChartData();
+      
+      if (chartData.categoryChart.labels.length > 0) {
+        createCategoryChart(chartData.categoryChart);
+      }
+      
+      if (chartData.trendChart.labels.length > 0) {
+        createTrendChart(chartData.trendChart);
+      }
+      
+      if (data.budgets.length > 0) {
+        createBudgetChart(data.budgets);
+      }
+    }, 100);
+
+    // Cleanup function
+    return () => {
+      Object.values(chartInstances.current).forEach(chart => {
+        if (chart && typeof chart.destroy === 'function') {
+          chart.destroy();
+        }
+      });
+      chartInstances.current = {};
+    };
+  }, [data.analytics, data.budgets, viewMode]);
+
   // Fetch data on mount and filter changes
   useEffect(() => {
     fetchDashboardData();
@@ -111,27 +413,20 @@ export default function Dashboard() {
     return { income, expenses, savings, savingsRate };
   }, [data.analytics]);
 
-  // Chart configurations
-  const chartData = useMemo(() => {
+  // Generate chart data
+  const generateChartData = () => {
     const categories = data.analytics?.categoryAnalytics?.slice(0, 6) || [];
     const trends = data.analytics?.monthlyTrends || [];
     
-    // Category Chart
+    // Category Chart Data
     const categoryChart = {
       labels: categories.map(c => c._id.charAt(0).toUpperCase() + c._id.slice(1)),
       datasets: [{
-        data: categories.map(c => c.total),
-        backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-          '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-        ],
-        borderWidth: 0,
-        hoverBorderWidth: 3,
-        hoverBorderColor: '#fff'
+        data: categories.map(c => c.total)
       }]
     };
 
-    // Trends Chart
+    // Trends Chart Data
     const monthLabels = Array.from(new Set(trends.map(t => `${t._id.month}/${t._id.year}`)));
     const incomeData = monthLabels.map(label => {
       const [month, year] = label.split('/');
@@ -147,27 +442,13 @@ export default function Dashboard() {
     const trendChart = {
       labels: monthLabels,
       datasets: [
-        {
-          label: 'Income',
-          data: incomeData,
-          borderColor: '#28a745',
-          backgroundColor: 'rgba(40, 167, 69, 0.1)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Expenses',
-          data: expenseData,
-          borderColor: '#dc3545',
-          backgroundColor: 'rgba(220, 53, 69, 0.1)',
-          tension: 0.4,
-          fill: true
-        }
+        { data: incomeData },
+        { data: expenseData }
       ]
     };
 
     return { categoryChart, trendChart };
-  }, [data.analytics]);
+  };
 
   // Quick period setter
   const setQuickPeriod = (period) => {
@@ -327,6 +608,8 @@ export default function Dashboard() {
     );
   }
 
+  const chartData = generateChartData();
+
   return (
     <div style={{
       maxWidth: '1400px',
@@ -365,7 +648,91 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* Header Section */}
+      {/* USER HEADER - Added Authentication */}
+      <header style={{
+        backgroundColor: '#007bff',
+        color: 'white',
+        padding: '1rem 2rem',
+        borderRadius: '16px',
+        marginBottom: '30px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 4px 15px rgba(0, 123, 255, 0.3)'
+      }}>
+        <div>
+          <h1 style={{ margin: '0 0 5px 0', fontSize: '24px' }}>
+            💰 Budget Tracker
+          </h1>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '14px' }}>
+            Welcome back, <strong>{user?.name || 'User'}</strong>! 
+            {user?.lastLogin && (
+              <span style={{ marginLeft: '10px', fontSize: '12px' }}>
+                Last login: {new Date(user.lastLogin).toLocaleDateString()}
+              </span>
+            )}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {/* Admin Panel Button - Show only for admins */}
+          {user?.role === 'admin' && (
+            <a 
+              href="/admin" 
+              style={{ 
+                color: 'white', 
+                textDecoration: 'none',
+                padding: '0.5rem 1rem',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: '6px',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+            >
+              🔧 Admin Panel
+            </a>
+          )}
+          
+          {/* User Role Badge */}
+          <span style={{
+            padding: '4px 8px',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            borderRadius: '12px',
+            fontSize: '12px',
+            textTransform: 'capitalize'
+          }}>
+            👤 {user?.role || 'User'}
+          </span>
+          
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#c82333'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#dc3545'}
+          >
+            🚪 Logout
+          </button>
+        </div>
+      </header>
+
+      {/* Header Section - Updated */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -707,43 +1074,7 @@ export default function Dashboard() {
               </span>
             </h3>
             <div style={{ height: '350px', display: 'flex', justifyContent: 'center' }}>
-              <Doughnut
-                data={chartData.categoryChart}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'bottom',
-                      labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        font: { size: 14 }
-                      }
-                    },
-                    tooltip: {
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                      titleColor: 'white',
-                      bodyColor: 'white',
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      borderWidth: 1,
-                      cornerRadius: 8,
-                      callbacks: {
-                        label: (context) => {
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((context.parsed / total) * 100).toFixed(1);
-                          return `${context.label}: ₹${context.parsed.toLocaleString()} (${percentage}%)`;
-                        }
-                      }
-                    }
-                  },
-                  animation: {
-                    animateRotate: true,
-                    duration: 1200,
-                    easing: 'easeOutQuart'
-                  }
-                }}
-              />
+              <canvas ref={categoryChartRef}></canvas>
             </div>
           </div>
         )}
@@ -775,60 +1106,7 @@ export default function Dashboard() {
               </span>
             </h3>
             <div style={{ height: '350px' }}>
-              <Line
-                data={chartData.trendChart}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'top',
-                      labels: {
-                        usePointStyle: true,
-                        font: { size: 14 }
-                      }
-                    },
-                    tooltip: {
-                      mode: 'index',
-                      intersect: false,
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                      titleColor: 'white',
-                      bodyColor: 'white',
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      borderWidth: 1,
-                      cornerRadius: 8
-                    }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        callback: (value) => `₹${(value/1000).toFixed(0)}k`,
-                        font: { size: 12 }
-                      },
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                      }
-                    },
-                    x: {
-                      ticks: {
-                        font: { size: 12 }
-                      },
-                      grid: {
-                        display: false
-                      }
-                    }
-                  },
-                  animation: {
-                    duration: 1200,
-                    easing: 'easeOutQuart'
-                  },
-                  interaction: {
-                    intersect: false,
-                    mode: 'index'
-                  }
-                }}
-              />
+              <canvas ref={trendChartRef}></canvas>
             </div>
           </div>
         )}
@@ -861,6 +1139,14 @@ export default function Dashboard() {
               {data.budgets.length} budgets
             </span>
           </h3>
+          
+          {/* Budget Chart */}
+          {data.budgets.length > 0 && (
+            <div style={{ height: '300px', marginBottom: '20px' }}>
+              <canvas ref={budgetChartRef}></canvas>
+            </div>
+          )}
+          
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',

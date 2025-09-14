@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TransactionForm from '../components/TransactionForm';
+import CategorySummary from '../components/CategorySummary';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);

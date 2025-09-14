@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 💰 Personal Budget Tracker (MERN)
 
 > "Track every rupee, plan every goal."
@@ -45,66 +44,25 @@ Welcome to **Personal Budget Tracker** — a comprehensive full-stack applicatio
 
 ```
 personal-budget-tracker/
-├── client/                          # React Frontend
-│   ├── public/
-│   │   ├── index.html
-│   │   └── favicon.ico
-│   ├── src/
-│   │   ├── components/              # Reusable UI Components
-│   │   │   ├── Dashboard.jsx        # Main dashboard with charts
-│   │   │   ├── TransactionForm.jsx  # Add/Edit transactions
-│   │   │   ├── BudgetManager.jsx    # Budget management
-│   │   │   ├── GroupManager.jsx     # Group expense sharing
-│   │   │   └── ExpenseList.jsx      # Transaction list view
-│   │   ├── pages/                   # Main Application Pages
-│   │   │   ├── Home.jsx             # Landing page
-│   │   │   ├── Transactions.jsx     # Transactions management
-│   │   │   ├── Budgets.jsx          # Budget overview
-│   │   │   └── Groups.jsx           # Group expenses
-│   │   ├── services/                # API Communication
-│   │   │   └── api.js               # Axios API service
-│   │   ├── utils/                   # Helper Functions
-│   │   │   └── helpers.js           # Date, currency formatting
-│   │   ├── App.js                   # Main App Component
-│   │   └── index.js                 # Entry Point
-│   └── package.json                 # Frontend Dependencies
-├── server/                          # Node.js Backend
-│   ├── models/                      # MongoDB Schemas
-│   │   ├── Transaction.js           # Transaction model
-│   │   ├── Budget.js                # Budget model
-│   │   ├── Group.js                 # Group expense model
-│   │   └── User.js                  # User authentication model
-│   ├── routes/                      # API Endpoints
-│   │   ├── transactions.js          # Transaction CRUD operations
-│   │   ├── budgets.js               # Budget management APIs
-│   │   ├── groups.js                # Group expense APIs
-│   │   └── auth.js                  # Authentication routes
-│   ├── middleware/                  # Custom Middleware
-│   │   └── auth.js                  # JWT authentication middleware
-│   ├── .env                         # Environment Variables
-│   ├── server.js                    # Server Entry Point
-│   └── package.json                 # Backend Dependencies
-├── README.md                        # Project Documentation
-└── .gitignore                       # Git Ignore Rules
+├── client/                 # React frontend (coming soon)
+├── server/                 # Express backend
+│   ├── model/              # Mongoose schemas (Budget, Transaction)
+│   ├── routes/             # API route handlers
+│   ├── .env                # MongoDB URI and secrets
+│   └── server.js           # Entry point for backend server
 ```
 
-***
+---
 
 ## ⚙️ Getting Started
 
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn package manager
-- MongoDB Atlas account (free tier available)
-- Git for version control
-
-### 1. Clone the Repository
+### 1. Clone the Repo
 ```bash
-git clone https://github.com/Nipun-11/personal-budget-tracker.git
+git clone https://github.com/your-username/personal-budget-tracker.git
 cd personal-budget-tracker
 ```
 
-### 2. Backend Setup
+### 2. Setup Backend
 ```bash
 cd server
 npm install
@@ -376,5 +334,48 @@ If you find this project helpful, please consider:
 
 *Last Updated: September 2025 | Version 2.0.0*
 =======
-#personal-budget-tracker
->>>>>>> 3ac1f95 (Add files via upload)
+### 3. Create `.env`
+```env
+MONGO_URI=your-mongodb-atlas-uri
+```
+
+### 4. Run the Server
+```bash
+npm run dev
+```
+Server will be live at: `http://localhost:5000`
+
+### 5. Test API Endpoints in Postman
+- `GET    /api/transactions`
+- `POST   /api/transactions`
+- `GET    /api/budgets`
+- `POST   /api/budgets`
+
+---
+
+## 🧪 Sample API Request
+
+```json
+POST /api/transactions
+{
+  "amount": 1000,
+  "type": "income",
+  "category": "Salary",
+  "date": "2025-08-10"
+}
+```
+
+---
+
+## 📌 Roadmap
+
+- [x] Backend server setup
+- [x] MongoDB Atlas connection
+- [x] Transactions & Budget APIs
+- [ ] React frontend with form validations
+- [ ] Authentication (JWT or session-based)
+- [ ] Deploy full-stack project
+
+---
+
+>>>>>>> c3649a6 (Update README.md)
