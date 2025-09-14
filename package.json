@@ -8,4 +8,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "4.1"
   }
+  {
+  "scripts": {
+    "vercel-build": "cd client && npm ci && npm run build"
+  }
+}
 }
