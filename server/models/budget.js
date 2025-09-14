@@ -16,6 +16,7 @@ const budgetSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+<<<<<<< HEAD
   year: {
     type: Number,
     required: true,
@@ -35,12 +36,20 @@ const budgetSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+=======
+  month: {
+    type: String, // e.g., "August 2025"
+    required: true
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
   }
 }, {
   timestamps: true
 });
 
+<<<<<<< HEAD
 // Compound index for unique budget per category per month/year
 budgetSchema.index({ category: 1, month: 1, year: 1 }, { unique: true });
 
+=======
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
 module.exports = mongoose.model('Budget', budgetSchema);

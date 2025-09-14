@@ -1,4 +1,5 @@
 import React from 'react';
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
 
 export default function Home() {
@@ -230,6 +231,14 @@ export default function Home() {
           </div>
         </div>
       </div>
+=======
+
+export default function Home() {
+  return (
+    <div>
+      <h2>Welcome to Budget Tracker</h2>
+      <p>This is the Home page.</p>
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
     </div>
   );
 }

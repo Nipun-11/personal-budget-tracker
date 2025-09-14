@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+=======
+import { createTransaction } from '../services/api';
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
 
 export default function TransactionForm({ onCreated }) {
   const [form, setForm] = useState({
     amount: '',
     type: 'expense',
     category: '',
+<<<<<<< HEAD
     description: '',
     date: new Date().toISOString().split('T')[0],
     note: ''
+=======
+    date: ''
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
   });
 
   const handleChange = (e) => {
@@ -15,6 +23,7 @@ export default function TransactionForm({ onCreated }) {
   };
 
   const handleSubmit = async (e) => {
+<<<<<<< HEAD
     e.preventDefault();
     try {
       const response = await fetch('http://localhost:5000/api/transactions', {
@@ -133,5 +142,49 @@ export default function TransactionForm({ onCreated }) {
         </button>
       </form>
     </div>
+=======
+  e.preventDefault();
+  try {
+    console.log("Submitting:", form);  // ← ADD THIS
+    await createTransaction(form);
+    setForm({ amount: '', type: 'expense', category: '', date: '' });
+    onCreated();
+  } catch (err) {
+    console.error('Failed to add transaction:', err);
+  }
+};
+
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name="amount"
+        type="number"
+        placeholder="Amount"
+        value={form.amount}
+        onChange={handleChange}
+        required
+      />
+      <select name="type" value={form.type} onChange={handleChange}>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <input
+        name="category"
+        placeholder="Category"
+        value={form.category}
+        onChange={handleChange}
+        required
+      />
+      <input
+        type="date"
+        name="date"
+        value={form.date}
+        onChange={handleChange}
+        required
+      />
+      <button type="submit">Add Transaction</button>
+    </form>
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
   );
 }

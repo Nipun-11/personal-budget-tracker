@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
+<<<<<<< HEAD
   baseURL: 'http://localhost:5000/api',
   timeout: 10000,
   headers: {
@@ -309,3 +310,13 @@ const apiService = {
 };
 
 export default apiService;
+=======
+  baseURL: 'http://localhost:5000/api', 
+});
+
+export const getTransactions = () => API.get('/transactions');
+export const createTransaction = (data) => API.post('/transactions', data);
+
+export const getBudgets = () => API.get('/budgets');
+export const createBudget = (data) => API.post('/budgets', data);
+>>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
