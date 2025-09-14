@@ -1,5 +1,5 @@
 {
-  "name": "budget-tracker-server",
+  "name": "personal-budget-tracker",
   "version": "1.0.0",
   "description": "Backend for budget tracker",
   "main": "server.js",
