@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-<<<<<<< HEAD
 import BudgetForm from '../components/BudgetForm';
 import { getBudgets } from '../services/api';
 
@@ -7,13 +6,6 @@ export default function Budgets() {
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-=======
-import { getBudgets } from '../services/api';
-import BudgetForm from '../components/BudgetForm';
-
-export default function Budgets() {
-  const [budgets, setBudgets] = useState([]);
->>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
 
   useEffect(() => {
     fetchBudgets();
@@ -21,7 +13,6 @@ export default function Budgets() {
 
   const fetchBudgets = async () => {
     try {
-<<<<<<< HEAD
       setLoading(true);
       const response = await getBudgets();
       setBudgets(response.data || []);
@@ -323,26 +314,6 @@ export default function Budgets() {
           </div>
         </>
       )}
-=======
-      const { data } = await getBudgets();
-      setBudgets(data);
-    } catch (err) {
-      console.error('❌ Failed to fetch budgets:', err);
-    }
-  };
-
-  return (
-    <div>
-      <h2>Budgets</h2>
-      <BudgetForm onCreated={fetchBudgets} />
-      <ul>
-        {budgets.map((budget) => (
-          <li key={budget._id}>
-            <strong>{budget.category}</strong> - ₹{budget.limit} for {budget.month}
-          </li>
-        ))}
-      </ul>
->>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
     </div>
   );
 }

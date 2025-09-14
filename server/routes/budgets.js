@@ -3,11 +3,7 @@ const router = express.Router();
 const Budget = require('../models/Budget');
 const Transaction = require('../models/Transaction');
 
-<<<<<<< HEAD
 // GET all budgets with spending analysis
-=======
-// 👉 GET all budgets
->>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
 router.get('/', async (req, res) => {
   try {
     const { month, year } = req.query;
@@ -62,7 +58,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 // POST create or update budget
 router.post('/', async (req, res) => {
   try {
@@ -154,23 +149,6 @@ router.get('/alerts', async (req, res) => {
     res.json(alerts);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch budget alerts' });
-=======
-// 👉 POST a new budget
-router.post('/', async (req, res) => {
-  try {
-    const { category, limit, month } = req.body;
-
-    const newBudget = new Budget({
-      category,
-      limit,
-      month
-    });
-
-    await newBudget.save();
-    res.status(201).json(newBudget);
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to create budget' });
->>>>>>> 3c830be (Fixed transactions fetch bug and added budget logic)
   }
 });
 
