@@ -1,9 +1,14 @@
 {
   "name": "personal-budget-tracker",
   "version": "1.0.0",
-  "description": "Full-stack budget tracking application",
   "scripts": {
-    "build": "echo 'Build complete'"
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "cd client && npm install && cd ../server && npm install",
+    "vercel-build": "cd client && npm install && npm run build"
   },
   "devDependencies": {
     "concurrently": "^7.6.0"

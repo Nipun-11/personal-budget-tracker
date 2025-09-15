@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../contexts/AuthContext.jsx';
 import Chart from 'chart.js/auto';
 
 export default function Reports() {
-  const { user } = useAuth();
   const [data, setData] = useState({
     transactions: [],
     budgets: [],
     loading: true,
     error: null
   });
-  
+ 
   const [filters, setFilters] = useState({
     dateRange: {
       start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -45,9 +43,8 @@ export default function Reports() {
 
   const fetchReportData = async () => {
     setData(prev => ({ ...prev, loading: true }));
-    
+   
     try {
-      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         startDate: filters.dateRange.start,
         endDate: filters.dateRange.end,
@@ -56,12 +53,8 @@ export default function Reports() {
       });
 
       const [transactionsRes, budgetsRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/transactions?${params}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`http://localhost:5000/api/budgets`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+        fetch(`http://localhost:5000/api/transactions?${params}`),
+        fetch(`http://localhost:5000/api/budgets`)
       ]);
 
       const transactions = transactionsRes.ok ? await transactionsRes.json() : { transactions: [] };
@@ -73,7 +66,6 @@ export default function Reports() {
         loading: false,
         error: null
       });
-
     } catch (error) {
       setData(prev => ({
         ...prev,
@@ -86,7 +78,7 @@ export default function Reports() {
   // Calculate analytics
   const analytics = React.useMemo(() => {
     const transactions = data.transactions;
-    
+   
     // Basic totals
     const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -279,14 +271,14 @@ export default function Reports() {
           {
             label: 'Spent',
             data: budgetData.map(item => item.spent),
-            backgroundColor: budgetData.map(item => 
+            backgroundColor: budgetData.map(item =>
               item.percentage >= 100 ? 'rgba(239, 68, 68, 0.8)' :
-              item.percentage >= 80 ? 'rgba(251, 191, 36, 0.8)' : 
+              item.percentage >= 80 ? 'rgba(251, 191, 36, 0.8)' :
               'rgba(34, 197, 94, 0.8)'
             ),
-            borderColor: budgetData.map(item => 
+            borderColor: budgetData.map(item =>
               item.percentage >= 100 ? '#ef4444' :
-              item.percentage >= 80 ? '#fbbf24' : 
+              item.percentage >= 80 ? '#fbbf24' :
               '#22c55e'
             ),
             borderWidth: 2
@@ -500,7 +492,6 @@ export default function Reports() {
             Comprehensive analysis of your financial data
           </p>
         </div>
-
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={exportToCSV}
@@ -672,7 +663,7 @@ export default function Reports() {
         </div>
 
         <div style={{
-          background: analytics.totals.netSavings >= 0 
+          background: analytics.totals.netSavings >= 0
             ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
             : 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
           color: 'white',
@@ -803,15 +794,15 @@ export default function Reports() {
             <tbody>
               {analytics.topExpenseCategories.map((item, index) => (
                 <tr key={item.category} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ 
+                  <td style={{
                     padding: '15px',
                     fontWeight: '500',
                     textTransform: 'capitalize'
                   }}>
                     #{index + 1} {item.category}
                   </td>
-                  <td style={{ 
-                    padding: '15px', 
+                  <td style={{
+                    padding: '15px',
                     textAlign: 'right',
                     fontWeight: 'bold',
                     color: '#dc3545'
@@ -844,11 +835,11 @@ export default function Reports() {
         color: '#6c757d'
       }}>
         <p style={{ margin: '0 0 10px 0' }}>
-          📊 Report generated on {new Date().toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          📊 Report generated on {new Date().toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
           })}
         </p>
         <p style={{ margin: 0, fontSize: '14px' }}>

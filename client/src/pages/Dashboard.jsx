@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Chart from 'chart.js/auto';
-import { useAuth } from '../contexts/AuthContext.jsx';
 import AISummary from '../components/AISummary.jsx';
 import AIChatbot from '../components/AIChatbot.jsx';
 import "../styles/Dashboard.css";
@@ -13,10 +12,7 @@ export default function Dashboard() {
   const categoryChartRef = useRef(null);
   const trendChartRef = useRef(null);
   const budgetChartRef = useRef(null);
-  
-  // Authentication context
-  const { user, logout } = useAuth();
-  
+
   // Store chart instances for cleanup
   const chartInstances = useRef({});
 
@@ -41,7 +37,7 @@ export default function Dashboard() {
   });
 
   // UI state
-  const [viewMode, setViewMode] = useState('overview'); // overview, detailed, analytics
+  const [viewMode, setViewMode] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
 
   // Destroy existing chart
@@ -52,7 +48,7 @@ export default function Dashboard() {
     }
   };
 
-  // Create Category Doughnut Chart with pure Chart.js
+  // Create Category Doughnut Chart
   const createCategoryChart = (chartData) => {
     const ctx = categoryChartRef.current;
     if (!ctx || !chartData.labels || chartData.labels.length === 0) return;
@@ -66,7 +62,7 @@ export default function Dashboard() {
         datasets: [{
           data: chartData.datasets[0].data,
           backgroundColor: [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
             '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
           ],
           borderColor: '#ffffff',
@@ -113,7 +109,7 @@ export default function Dashboard() {
     });
   };
 
-  // Create Trend Line Chart with pure Chart.js
+  // Create Trend Line Chart
   const createTrendChart = (chartData) => {
     const ctx = trendChartRef.current;
     if (!ctx || !chartData.labels || chartData.labels.length === 0) return;
@@ -210,7 +206,7 @@ export default function Dashboard() {
     });
   };
 
-  // Create Budget Bar Chart with pure Chart.js
+  // Create Budget Bar Chart
   const createBudgetChart = (budgets) => {
     const ctx = budgetChartRef.current;
     if (!ctx || !budgets || budgets.length === 0) return;
@@ -272,13 +268,13 @@ export default function Dashboard() {
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { 
+            ticks: {
               callback: (value) => `₹${value.toLocaleString()}`,
               color: '#6b7280'
             },
-            grid: { 
+            grid: {
               color: 'rgba(156, 163, 175, 0.2)',
-              drawBorder: false 
+              drawBorder: false
             },
             border: { display: false }
           },
@@ -296,7 +292,7 @@ export default function Dashboard() {
     });
   };
 
-  // Fetch all data efficiently with authentication
+  // Fetch all data efficiently
   const fetchDashboardData = async () => {
     const isRefresh = !data.loading;
     if (isRefresh) {
@@ -304,37 +300,22 @@ export default function Dashboard() {
     } else {
       setData(prev => ({ ...prev, loading: true }));
     }
-    
+
     try {
       const baseUrl = 'http://localhost:5000/api';
-      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         startDate: filters.dateRange.start,
         endDate: filters.dateRange.end,
         limit: '10'
       });
-      
-      // Headers with authentication
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-      
+
       // Parallel API calls for better performance
       const [analyticsRes, transactionsRes, groupsRes, budgetsRes] = await Promise.all([
-        fetch(`${baseUrl}/transactions/analytics?${params}`, { headers }),
-        fetch(`${baseUrl}/transactions?${params}`, { headers }),
-        fetch(`${baseUrl}/groups`, { headers }),
-        fetch(`${baseUrl}/budgets`, { headers })
+        fetch(`${baseUrl}/transactions/analytics?${params}`),
+        fetch(`${baseUrl}/transactions?${params}`),
+        fetch(`${baseUrl}/groups`),
+        fetch(`${baseUrl}/budgets`)
       ]);
-
-      // Check for authentication errors
-      if (analyticsRes.status === 401 || transactionsRes.status === 401 || 
-          groupsRes.status === 401 || budgetsRes.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        return;
-      }
 
       // Process responses
       const [analytics, transactionsData, groups, budgets] = await Promise.all([
@@ -352,12 +333,13 @@ export default function Dashboard() {
         loading: false,
         error: null
       });
+
     } catch (error) {
       console.error('Dashboard fetch error:', error);
-      setData(prev => ({ 
-        ...prev, 
-        error: 'Failed to load dashboard data. Please check your connection.', 
-        loading: false 
+      setData(prev => ({
+        ...prev,
+        error: 'Failed to load dashboard data. Please check your connection.',
+        loading: false
       }));
     } finally {
       setRefreshing(false);
@@ -648,91 +630,7 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* USER HEADER - Added Authentication */}
-      <header style={{
-        backgroundColor: '#007bff',
-        color: 'white',
-        padding: '1rem 2rem',
-        borderRadius: '16px',
-        marginBottom: '30px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 4px 15px rgba(0, 123, 255, 0.3)'
-      }}>
-        <div>
-          <h1 style={{ margin: '0 0 5px 0', fontSize: '24px' }}>
-            💰 Budget Tracker
-          </h1>
-          <p style={{ margin: 0, opacity: 0.9, fontSize: '14px' }}>
-            Welcome back, <strong>{user?.name || 'User'}</strong>! 
-            {user?.lastLogin && (
-              <span style={{ marginLeft: '10px', fontSize: '12px' }}>
-                Last login: {new Date(user.lastLogin).toLocaleDateString()}
-              </span>
-            )}
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          {/* Admin Panel Button - Show only for admins */}
-          {user?.role === 'admin' && (
-            <a 
-              href="/admin" 
-              style={{ 
-                color: 'white', 
-                textDecoration: 'none',
-                padding: '0.5rem 1rem',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                borderRadius: '6px',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-            >
-              🔧 Admin Panel
-            </a>
-          )}
-          
-          {/* User Role Badge */}
-          <span style={{
-            padding: '4px 8px',
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            borderRadius: '12px',
-            fontSize: '12px',
-            textTransform: 'capitalize'
-          }}>
-            👤 {user?.role || 'User'}
-          </span>
-          
-          {/* Logout Button */}
-          <button
-            onClick={logout}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#c82333'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#dc3545'}
-          >
-            🚪 Logout
-          </button>
-        </div>
-      </header>
-
-      {/* Header Section - Updated */}
+      {/* Header Section */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -927,7 +825,7 @@ export default function Dashboard() {
         marginBottom: '30px'
       }}>
         {/* Income Card */}
-        <div 
+        <div
           className="metric-card"
           onClick={() => setViewMode('detailed')}
           style={{
@@ -954,7 +852,7 @@ export default function Dashboard() {
         </div>
 
         {/* Expenses Card */}
-        <div 
+        <div
           className="metric-card"
           onClick={() => setViewMode('analytics')}
           style={{
@@ -981,10 +879,10 @@ export default function Dashboard() {
         </div>
 
         {/* Savings Card */}
-        <div 
+        <div
           className="metric-card"
           style={{
-            background: metrics.savings >= 0 
+            background: metrics.savings >= 0
               ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
               : 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
             color: 'white',
@@ -1013,7 +911,7 @@ export default function Dashboard() {
         </div>
 
         {/* Groups Card */}
-        <div 
+        <div
           className="metric-card"
           onClick={() => window.location.href = '/groups'}
           style={{
@@ -1055,8 +953,8 @@ export default function Dashboard() {
             borderRadius: '16px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)'
           }}>
-            <h3 style={{ 
-              marginBottom: '20px', 
+            <h3 style={{
+              marginBottom: '20px',
               color: '#2c3e50',
               display: 'flex',
               alignItems: 'center',
@@ -1087,8 +985,8 @@ export default function Dashboard() {
             borderRadius: '16px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)'
           }}>
-            <h3 style={{ 
-              marginBottom: '20px', 
+            <h3 style={{
+              marginBottom: '20px',
               color: '#2c3e50',
               display: 'flex',
               alignItems: 'center',
@@ -1121,8 +1019,8 @@ export default function Dashboard() {
           marginBottom: '30px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)'
         }}>
-          <h3 style={{ 
-            marginBottom: '20px', 
+          <h3 style={{
+            marginBottom: '20px',
             color: '#2c3e50',
             display: 'flex',
             alignItems: 'center',
@@ -1163,7 +1061,7 @@ export default function Dashboard() {
                   style={{
                     padding: '20px',
                     border: `2px solid ${
-                      status === 'safe' ? '#28a745' : 
+                      status === 'safe' ? '#28a745' :
                       status === 'warning' ? '#ffc107' : '#dc3545'
                     }`,
                     borderRadius: '12px',
@@ -1177,8 +1075,8 @@ export default function Dashboard() {
                     alignItems: 'center',
                     marginBottom: '15px'
                   }}>
-                    <h4 style={{ 
-                      margin: 0, 
+                    <h4 style={{
+                      margin: 0,
                       textTransform: 'capitalize',
                       color: '#2c3e50'
                     }}>
@@ -1189,11 +1087,11 @@ export default function Dashboard() {
                       borderRadius: '15px',
                       fontSize: '12px',
                       fontWeight: 'bold',
-                      backgroundColor: 
-                        status === 'safe' ? '#d4edda' : 
+                      backgroundColor:
+                        status === 'safe' ? '#d4edda' :
                         status === 'warning' ? '#fff3cd' : '#f8d7da',
-                      color: 
-                        status === 'safe' ? '#155724' : 
+                      color:
+                        status === 'safe' ? '#155724' :
                         status === 'warning' ? '#856404' : '#721c24'
                     }}>
                       {percentage.toFixed(0)}%
@@ -1210,16 +1108,16 @@ export default function Dashboard() {
                     <div style={{
                       width: `${percentage}%`,
                       height: '100%',
-                      backgroundColor: 
-                        status === 'safe' ? '#28a745' : 
+                      backgroundColor:
+                        status === 'safe' ? '#28a745' :
                         status === 'warning' ? '#ffc107' : '#dc3545',
                       transition: 'width 0.8s ease',
                       borderRadius: '10px'
                     }}></div>
                   </div>
                   
-                  <div style={{ 
-                    display: 'flex', 
+                  <div style={{
+                    display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '14px',
                     color: '#6c757d'
@@ -1229,7 +1127,7 @@ export default function Dashboard() {
                   </div>
                   
                   {status === 'over' && (
-                    <div style={{ 
+                    <div style={{
                       marginTop: '8px',
                       fontSize: '12px',
                       color: '#dc3545',
@@ -1254,8 +1152,8 @@ export default function Dashboard() {
           marginBottom: '30px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)'
         }}>
-          <h3 style={{ 
-            marginBottom: '20px', 
+          <h3 style={{
+            marginBottom: '20px',
             color: '#2c3e50',
             display: 'flex',
             alignItems: 'center',
@@ -1272,45 +1170,46 @@ export default function Dashboard() {
               Latest {Math.min(data.transactions.length, 10)}
             </span>
           </h3>
+
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ 
-              width: '100%', 
+            <table style={{
+              width: '100%',
               borderCollapse: 'collapse',
               fontSize: '14px'
             }}>
               <thead>
                 <tr style={{ backgroundColor: '#f8f9fa' }}>
-                  <th style={{ 
-                    padding: '15px 12px', 
-                    textAlign: 'left', 
+                  <th style={{
+                    padding: '15px 12px',
+                    textAlign: 'left',
                     borderBottom: '2px solid #dee2e6',
                     fontWeight: '600',
                     color: '#495057'
                   }}>Date</th>
-                  <th style={{ 
-                    padding: '15px 12px', 
-                    textAlign: 'left', 
+                  <th style={{
+                    padding: '15px 12px',
+                    textAlign: 'left',
                     borderBottom: '2px solid #dee2e6',
                     fontWeight: '600',
                     color: '#495057'
                   }}>Description</th>
-                  <th style={{ 
-                    padding: '15px 12px', 
-                    textAlign: 'left', 
+                  <th style={{
+                    padding: '15px 12px',
+                    textAlign: 'left',
                     borderBottom: '2px solid #dee2e6',
                     fontWeight: '600',
                     color: '#495057'
                   }}>Category</th>
-                  <th style={{ 
-                    padding: '15px 12px', 
-                    textAlign: 'right', 
+                  <th style={{
+                    padding: '15px 12px',
+                    textAlign: 'right',
                     borderBottom: '2px solid #dee2e6',
                     fontWeight: '600',
                     color: '#495057'
                   }}>Amount</th>
-                  <th style={{ 
-                    padding: '15px 12px', 
-                    textAlign: 'center', 
+                  <th style={{
+                    padding: '15px 12px',
+                    textAlign: 'center',
                     borderBottom: '2px solid #dee2e6',
                     fontWeight: '600',
                     color: '#495057'
@@ -1319,32 +1218,32 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {data.transactions.slice(0, viewMode === 'detailed' ? 20 : 8).map((transaction, index) => (
-                  <tr 
+                  <tr
                     key={transaction._id || index}
-                    style={{ 
+                    style={{
                       transition: 'background-color 0.2s ease',
                       cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <td style={{ 
-                      padding: '15px 12px', 
+                    <td style={{
+                      padding: '15px 12px',
                       borderBottom: '1px solid #f0f0f0',
                       color: '#495057'
                     }}>
                       {new Date(transaction.date).toLocaleDateString('en-IN')}
                     </td>
-                    <td style={{ 
-                      padding: '15px 12px', 
+                    <td style={{
+                      padding: '15px 12px',
                       borderBottom: '1px solid #f0f0f0',
                       color: '#2c3e50',
                       fontWeight: '500'
                     }}>
                       {transaction.description || '-'}
                     </td>
-                    <td style={{ 
-                      padding: '15px 12px', 
+                    <td style={{
+                      padding: '15px 12px',
                       borderBottom: '1px solid #f0f0f0',
                       textTransform: 'capitalize',
                       color: '#6c757d'
@@ -1359,8 +1258,8 @@ export default function Dashboard() {
                         {transaction.category}
                       </span>
                     </td>
-                    <td style={{ 
-                      padding: '15px 12px', 
+                    <td style={{
+                      padding: '15px 12px',
                       borderBottom: '1px solid #f0f0f0',
                       textAlign: 'right',
                       color: transaction.type === 'income' ? '#28a745' : '#dc3545',
@@ -1369,8 +1268,8 @@ export default function Dashboard() {
                     }}>
                       {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
                     </td>
-                    <td style={{ 
-                      padding: '15px 12px', 
+                    <td style={{
+                      padding: '15px 12px',
                       borderBottom: '1px solid #f0f0f0',
                       textAlign: 'center'
                     }}>

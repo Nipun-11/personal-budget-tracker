@@ -1,4 +1,3 @@
-// components/TransactionTableList.jsx
 
 import React from 'react';
 
