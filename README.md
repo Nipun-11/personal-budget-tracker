@@ -303,7 +303,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 🌟 Full Stack Developer | MERN Stack Enthusiast | Open Source Contributor
 
 - **GitHub:** [@Nipun-11](https://github.com/Nipun-11)
-- **LinkedIn:** [Connect with me](https://linkedin.com/in/nipun-bansal)
+- **LinkedIn:** [Connect with me](www.linkedin.com/in/nipun-bansal-1a8270305)
 
 ***
 
@@ -315,14 +315,6 @@ If you find this project helpful, please consider:
 🍴 **Forking** for your own projects  
 📢 **Sharing** with fellow developers  
 💝 **Contributing** to make it better  
-
-***
-
-## 🔗 Related Projects
-
-- [Expense Tracker Mobile App](https://github.com/Nipun-11/expense-tracker-mobile)
-- [React Budget Calculator](https://github.com/Nipun-11/budget-calculator)
-- [MERN Auth Template](https://github.com/Nipun-11/mern-auth-template)
 
 ***
 
@@ -366,15 +358,6 @@ POST /api/transactions
 ```
 
 ---
-
-## 📌 Roadmap
-
-- [x] Backend server setup
-- [x] MongoDB Atlas connection
-- [x] Transactions & Budget APIs
-- [ ] React frontend with form validations
-- [ ] Authentication (JWT or session-based)
-- [ ] Deploy full-stack project
 
 ## 👤 Author
 
